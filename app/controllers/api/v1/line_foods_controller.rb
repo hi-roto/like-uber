@@ -3,6 +3,20 @@ module Api
     class LineFoodsController < ApplicationController
       before_action :set_food, only: [:create]
 
+      def index
+        line_foods = LineFood.active
+        if line_foods.exists?
+          render json: {
+            line_food_ids: line_foods.map { |line_food| line_food.id },
+            restaurant: line_foods[0].restaurant,
+            count: line_foods.sum { |line_food| line_food[:count] },
+            amount: line_foods.sum { |line_food| line_food.total_amount },
+          }, status: :ok
+        else
+          render json: {}, status: :no_content
+        end
+      end
+      
       def create
         if LineFood.active.other_restaurant(@ordered_food.restaurant.id).exists?
           return render json: {
@@ -10,7 +24,7 @@ module Api
             new_restaurant: Food.find(params[:food_id]).restaurant.name,
           }, status: :not_acceptable
         end
-
+# 他の仮注文が存在するかどうかを判別して、それがtrueならば、存在する他店舗の仮注文の情報と新しい仮注文をっした店舗の情報を返している
         set_line_food(@ordered_food)
 
         if @line_food.save
