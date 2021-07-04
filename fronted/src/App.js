@@ -27,7 +27,7 @@ function App() {
           path="/foods"
         >
           <Foods />
-        </Route>
+         </Route>
         // 注文ページ
         <Route
           exact
